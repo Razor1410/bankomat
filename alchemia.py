@@ -1,5 +1,7 @@
 import sqlalchemy
 from sqlalchemy import create_engine, MetaData, Table, Column, Integer, String
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
 
 print(sqlalchemy.__version__)
 
@@ -7,18 +9,26 @@ engine = create_engine('sqlite:///college.db', echo=True)
 # engine = create_engine('mysql:///user:pass@localhost/college', echo=True)
 # print(engine.driver)
 
-meta = MetaData()
+Base = declarative_base()
 
-students = Table(
-    'students', meta,
-    Column('id', Integer, primary_key=True),
-    Column('name', String),
-    Column('lastname', String)
-)
 
-meta.create_all(engine)
+class Student(Base):
+    __tablename__ = 'students'
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
+    lastname = Column(String)
 
-ins = students.insert().values(name='Tomek', lastname='Kaniecki')
-conn = engine.connect()
-conn.execute(ins)
 
+# Base.metadata.create_all(engine)
+
+Session = sessionmaker(bind=engine)
+session = Session()
+
+new_student = Student(name='Ania', lastname='Kowalska')
+session.add(new_student)
+
+session.commit()
+
+students = session.query(Student).all()
+for s in students:
+    print(f"ID: {s.id}, name: {s.name}, lastname: {s.lastname}")
