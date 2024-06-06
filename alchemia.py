@@ -32,3 +32,4 @@ session.commit()
 students = session.query(Student).all()
 for s in students:
     print(f"ID: {s.id}, name: {s.name}, lastname: {s.lastname}")
+
